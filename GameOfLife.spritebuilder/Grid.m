@@ -18,38 +18,51 @@ static const int GRID_COLUMNS = 10;
   float _cellHeight;
 }
 
--(void) onEnter {
+- (void)onEnter {
   [super onEnter];
   [self setupGrid];
-  
+
   self.userInteractionEnabled = YES;
 }
 
--(void) setupGrid {
+- (void)setupGrid {
   _cellHeight = self.contentSize.height / GRID_ROWS;
   _cellWidth = self.contentSize.width / GRID_COLUMNS;
-  
+
   float x = 0, y = 0;
-  
+
   _gridArray = [NSMutableArray array];
-  
+
   for (int i = 0; i < GRID_ROWS; ++i) {
     _gridArray[i] = [NSMutableArray array];
     x = 0;
-    
+
     for (int j = 0; j < GRID_COLUMNS; ++j) {
       Creature *creature = [[Creature alloc] initCreature];
       creature.anchorPoint = ccp(0, 0);
       creature.position = ccp(x, y);
       [self addChild:creature];
-      
+
       _gridArray[i][j] = creature;
-      creature.isAlive = j % 2;
-      
+
       x += _cellWidth;
     }
     y += _cellHeight;
   }
+}
+
+- (void)touchBegan:(CCTouch *)touch withEvent:(CCTouchEvent *)event {
+  CGPoint touchLocation = [touch locationInNode:self];
+
+  Creature *creature = [self creatureForTouchPosition:touchLocation];
+  
+  creature.isAlive = !creature.isAlive;
+}
+
+- (Creature *)creatureForTouchPosition:(CGPoint)touchPosition {
+  int row = touchPosition.y / _cellHeight,
+      column = touchPosition.x / _cellWidth;
+  return _gridArray[row][column];
 }
 
 @end
