@@ -100,14 +100,17 @@ static const int GRID_COLUMNS = 10;
     for (Creature *c in row) {
       switch (c.isAlive) {
         case YES:
-          _totalAlive++;
           if (c.livingNeighbors <= 1 || c.livingNeighbors >= 4)
             c.isAlive = NO;
+          else
+            _totalAlive++;
           break;
           
         case NO:
-          if (c.livingNeighbors == 3)
+          if (c.livingNeighbors == 3) {
             c.isAlive = YES;
+            _totalAlive++;
+          }
           break;
       }
     }
