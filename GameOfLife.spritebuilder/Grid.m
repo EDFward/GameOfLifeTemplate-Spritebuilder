@@ -55,7 +55,7 @@ static const int GRID_COLUMNS = 10;
   CGPoint touchLocation = [touch locationInNode:self];
 
   Creature *creature = [self creatureForTouchPosition:touchLocation];
-  
+
   creature.isAlive = !creature.isAlive;
 }
 
@@ -63,6 +63,53 @@ static const int GRID_COLUMNS = 10;
   int row = touchPosition.y / _cellHeight,
       column = touchPosition.x / _cellWidth;
   return _gridArray[row][column];
+}
+
+- (void)evolveStep {
+  [self countNeighbors];
+  [self updateCreatures];
+  _generation++;
+}
+
+- (void)countNeighbors {
+  for (int i = 0; i < [_gridArray count]; ++i) {
+    for (int j = 0; j < [_gridArray[i] count]; ++j) {
+      Creature *currentCreature = _gridArray[i][j];
+      currentCreature.livingNeighbors = 0;
+      
+      // count living neighbors
+      for (int x = i-1; x <= i+1; ++x) {
+        for (int y = j-1; y <= j+1; ++y) {
+          if (x == i && y == j)
+            continue;
+          
+          if (x >= 0 && y >= 0 && x < GRID_ROWS && y < GRID_COLUMNS) {
+            Creature *neighbor = _gridArray[x][y];
+            if (neighbor.isAlive)
+              currentCreature.livingNeighbors += 1;
+          }
+        }
+      }
+    }
+  }
+}
+
+- (void)updateCreatures {
+  for (NSMutableArray *row in _gridArray) {
+    for (Creature *c in row) {
+      switch (c.isAlive) {
+        case YES:
+          if (c.livingNeighbors <= 1 || c.livingNeighbors >= 4)
+            c.isAlive = NO;
+          break;
+          
+        case NO:
+          if (c.livingNeighbors == 3)
+            c.isAlive = YES;
+          break;
+      }
+    }
+  }
 }
 
 @end
