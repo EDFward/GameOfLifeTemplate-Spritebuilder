@@ -95,10 +95,12 @@ static const int GRID_COLUMNS = 10;
 }
 
 - (void)updateCreatures {
+  _totalAlive = 0;
   for (NSMutableArray *row in _gridArray) {
     for (Creature *c in row) {
       switch (c.isAlive) {
         case YES:
+          _totalAlive++;
           if (c.livingNeighbors <= 1 || c.livingNeighbors >= 4)
             c.isAlive = NO;
           break;
